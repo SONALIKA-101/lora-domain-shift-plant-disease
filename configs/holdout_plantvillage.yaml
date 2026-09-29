@@ -1,0 +1,56 @@
+# Configuration for the PlantVillage held-out rotation.
+# Derived from configs/base.yaml with only data.held_out_domain changed;
+# all other settings (lora, domain_invariance, train) are identical to
+# configs/base.yaml (the plantwild rotation).
+
+experiment:
+  name: "doga_dinov2s_plantvillage_plantdoc"
+  seed: 42
+  output_dir: "results"
+  checkpoint_dir: "checkpoints"
+
+model:
+  backbone: "facebook/dinov2-small"
+  num_classes: 16
+  freeze_backbone: true
+
+lora:
+  enabled: true
+  r: 8
+  alpha: 16
+  dropout: 0.1
+  target_modules: ["query", "value"]
+
+domain_invariance:
+  enabled: true
+  method: "dann"
+  lambda_domain: 0.3
+  grl_warmup_steps: 500
+
+data:
+  domains:
+    - name: "plantvillage"
+      root: "data/plantvillage"
+    - name: "plantdoc"
+      root: "data/plantdoc"
+    - name: "plantwild"
+      root: "data/plantwild"
+  held_out_domain: "plantvillage"
+  split_strategy: "leave_one_out"
+  val_fraction: 0.1
+  image_size: 224
+  batch_size: 32
+  num_workers: 4
+
+train:
+  epochs: 15
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  warmup_ratio: 0.05
+  mixed_precision: true
+  grad_accum_steps: 2
+  log_every: 20
+  eval_every_epoch: true
+
+baselines:
+  mode: "doga"

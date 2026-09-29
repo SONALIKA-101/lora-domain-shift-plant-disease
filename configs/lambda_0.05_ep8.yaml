@@ -1,0 +1,56 @@
+# Lambda-sensitivity sweep config: PlantWild held out, lora.r = 8, lambda_domain
+# and train.epochs as below. Derived from configs/base.yaml with only these
+# two fields (and the domain-adversarial ramp target) changed; every other
+# setting matches configs/base.yaml.
+
+experiment:
+  name: "doga_dinov2s_plantvillage_plantdoc"
+  seed: 42
+  output_dir: "results"
+  checkpoint_dir: "checkpoints"
+
+model:
+  backbone: "facebook/dinov2-small"
+  num_classes: 16
+  freeze_backbone: true
+
+lora:
+  enabled: true
+  r: 8
+  alpha: 16
+  dropout: 0.1
+  target_modules: ["query", "value"]
+
+domain_invariance:
+  enabled: true
+  method: "dann"
+  lambda_domain: 0.05
+  grl_warmup_steps: 500
+
+data:
+  domains:
+    - name: "plantvillage"
+      root: "data/plantvillage"
+    - name: "plantdoc"
+      root: "data/plantdoc"
+    - name: "plantwild"
+      root: "data/plantwild"
+  held_out_domain: "plantwild"
+  split_strategy: "leave_one_out"
+  val_fraction: 0.1
+  image_size: 224
+  batch_size: 32
+  num_workers: 4
+
+train:
+  epochs: 8
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  warmup_ratio: 0.05
+  mixed_precision: true
+  grad_accum_steps: 2
+  log_every: 20
+  eval_every_epoch: true
+
+baselines:
+  mode: "doga"

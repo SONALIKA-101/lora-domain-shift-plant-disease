@@ -1,0 +1,22 @@
+# Datasets and model weights are not redistributed (see README)
+data/
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+
+# Logs, OS and editor files
+*.log
+nohup.out
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp

@@ -1,0 +1,5 @@
+rank,mode,held_out_domain,held_out_macro_f1,status
+4,doga,plantwild,0.5207,ok
+8,doga,plantwild,0.5151,ok
+16,doga,plantwild,0.5162,ok
+32,doga,plantwild,0.5446,ok

@@ -1,0 +1,62 @@
+# Base configuration for the DoGA experiments
+# (leave-one-domain-out plant disease classification with DINOv2 + LoRA).
+#
+# Run:  python -m src.train --config configs/base.yaml [--mode MODE]
+# MODE is one of: linear_probe, lora_plain, full_finetune, doga.
+
+experiment:
+  name: "doga_dinov2s_plantvillage_plantdoc"
+  seed: 42                             # also seeds the per-domain validation splits (seed + domain index)
+  output_dir: "results"
+  checkpoint_dir: "checkpoints"
+
+model:
+  backbone: "facebook/dinov2-small"
+  # The two keys below are informational only and are not read by the code:
+  # the number of classes is computed from the data (src/data.py,
+  # build_shared_class_index) and freezing is determined by baselines.mode.
+  num_classes: 16
+  freeze_backbone: true
+
+lora:
+  enabled: true
+  r: 8                                 # LoRA rank (4, 8, 16 and 32 were tested in the rank ablation)
+  alpha: 16
+  dropout: 0.1
+  target_modules: ["query", "value"]   # attention projections that receive LoRA
+
+domain_invariance:
+  enabled: true                        # adds the domain-adversarial branch (used only when mode is "doga")
+  method: "dann"                       # DANN-style gradient reversal is the only method implemented
+  lambda_domain: 0.3                   # maximum gradient-reversal strength
+  grl_warmup_steps: 500                # lambda is ramped from 0 to lambda_domain over this many mini-batches (sigmoid schedule)
+
+data:
+  domains:
+    - name: "plantvillage"
+      root: "data/plantvillage"
+    - name: "plantdoc"
+      root: "data/plantdoc"
+    - name: "plantwild"
+      root: "data/plantwild"
+  held_out_domain: "plantwild"         # domain excluded from training; the other two are used for training
+  split_strategy: "leave_one_out"      # strict leave-one-domain-out ("few_shot_target" is not used)
+  val_fraction: 0.1                    # stratified validation slice carved from the training domains only (checkpoint selection)
+  # target_train_fraction is only read when split_strategy is "few_shot_target"
+  image_size: 224
+  batch_size: 32
+  num_workers: 4
+
+train:
+  epochs: 15
+  lr: 1.0e-4                           # constant learning rate (no scheduler is used)
+  weight_decay: 1.0e-4                 # AdamW
+  warmup_ratio: 0.05                   # not used by src/train.py (no learning-rate schedule is applied)
+  mixed_precision: true
+  grad_accum_steps: 2                  # effective batch size 64
+  log_every: 20
+  eval_every_epoch: true
+
+baselines:
+  # options: "linear_probe", "lora_plain", "full_finetune", "doga"
+  mode: "doga"
