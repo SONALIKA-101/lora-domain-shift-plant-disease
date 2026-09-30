@@ -160,7 +160,7 @@ Results are written to `results/rank_ablation.csv`.
 ```bibtex
 @article{devi2026evaluating,
   title   = {Evaluating Parameter-Efficient Adaptation of a Vision Foundation Model for Plant Disease Classification Under Domain Shift},
-  author  = {Toijam Sonalika Devi, Inunganbi Sanasam, Navanath Saharia},
+  author  = {Toijam Sonalika, Inunganbi Sanasam, Navanath Saharia},
   journal = {Computers and Electronics in Agriculture},
   year    = {2026},
   note    = {Manuscript submitted for publication}
